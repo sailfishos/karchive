@@ -1,0 +1,54 @@
+From 2741aeca461f21eda7118c99bebcd57b91e00905 Mon Sep 17 00:00:00 2001
+From: Raine Makelainen <raine.makelainen@jolla.com>
+Date: Thu, 11 Jan 2018 09:25:57 +0200
+Subject: [PATCH 1/2] Generate pkg-config
+
+Signed-off-by: Raine Makelainen <raine.makelainen@jolla.com>
+---
+ CMakeLists.txt   | 11 +++++++++++
+ KF5Archive.pc.in | 13 +++++++++++++
+ 2 files changed, 24 insertions(+)
+ create mode 100644 KF5Archive.pc.in
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index bb2046d..2a3575d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -104,4 +104,15 @@ install(EXPORT KF5ArchiveTargets
+ 
+ install(FILES karchive.categories DESTINATION ${KDE_INSTALL_CONFDIR})
+ 
++# generate pkg-config file
++set(DEST_DIR "${CMAKE_INSTALL_PREFIX}")
++set(VERSION "${KF5_VERSION}")
++set(COMMA_SEAPARATED_LIST "KF5Archive")
++
++foreach(LIB ${COMMA_SEAPARATED_LIST})
++  set(PRIVATE_LIBS "${PRIVATE_LIBS} -l${LIB}")
++endforeach()
++
++CONFIGURE_FILE("KF5Archive.pc.in" "KF5Archive.pc" @ONLY)
++
+ feature_summary(WHAT ALL   FATAL_ON_MISSING_REQUIRED_PACKAGES)
+diff --git a/KF5Archive.pc.in b/KF5Archive.pc.in
+new file mode 100644
+index 0000000..cc4948d
+--- /dev/null
++++ b/KF5Archive.pc.in
+@@ -0,0 +1,13 @@
++prefix=@DEST_DIR@
++exec_prefix=${prefix}
++libdir=${prefix}/lib
++includedir=${prefix}/include/KF5/KArchive
++
++Name: karchive
++Description: A library for reading, creating, and manipulating file archives
++Version: @VERSION@
++
++Requires: Qt5Core
++Libs: -L${libdir} @PRIVATE_LIBS@
++Cflags: -I${includedir}
++
+-- 
+2.7.4
+
