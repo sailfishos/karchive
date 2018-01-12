@@ -36,7 +36,7 @@ Requires: %{name} = %{version}-%{release}
 %summary.
 
 %prep
-%setup -n karchive-%{version}/karchive
+%setup -n %{name}-%{version}/karchive
 
 %patch1 -p1 -b .generate-pkgconfg
 %patch2 -p1 -b .keep-qt5.6-build-req
