@@ -9,6 +9,7 @@ Source0:     %{name}-%{version}.tar.gz
 # Upstreamable patches
 Patch1: 0001-Generate-pkg-config.patch
 Patch2: 0002-Keep-Qt5.6-requirement.patch
+Patch3: 0003-Add-an-option-to-automatically-rename-target-file-pa.patch
 
 BuildRequires: cmake
 BuildRequires: extra-cmake-modules
@@ -40,6 +41,7 @@ Requires: %{name} = %{version}-%{release}
 
 %patch1 -p1 -b .generate-pkgconfg
 %patch2 -p1 -b .keep-qt5.6-build-req
+%patch3 -p1 -b .auto-rename
 
 %build
 cmake . -DCMAKE_INSTALL_PREFIX=/usr
