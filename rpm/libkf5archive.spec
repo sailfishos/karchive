@@ -44,7 +44,7 @@ Requires: %{name} = %{version}-%{release}
 %patch3 -p1 -b .auto-rename
 
 %build
-cmake . -DCMAKE_INSTALL_PREFIX=/usr
+cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=/usr/lib
 %{__make} %{?_smp_mflags}
 
 %install
