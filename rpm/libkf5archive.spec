@@ -34,7 +34,15 @@ Summary: Development files for %{name}
 Requires: %{name} = %{version}-%{release}
 
 %description devel
-%summary.
+%{summary}.
+
+%package doc
+Summary:   Documentation for %{name}
+Group:     Documentation
+Requires:  %{name} = %{version}-%{release}
+
+%description doc
+%{summary}.
 
 %prep
 %setup -n %{name}-%{version}/karchive
@@ -55,19 +63,26 @@ cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=/usr/lib
 mkdir -p %{pkg_config_dir}
 cp -p KF5Archive.pc %{pkg_config_dir}
 
+mkdir -p %{buildroot}%{_docdir}/%{name}-%{version}
+install -m0644 -t %{buildroot}%{_docdir}/%{name}-%{version} \
+        AUTHORS README.md
+
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
 %files
-%doc COPYING COPYING.LIB
+%license COPYING COPYING.LIB
 %{_sysconfdir}/xdg/karchive.*
 %{_libdir}/libKF5Archive.so.*
 
 %files devel
-%doc COPYING.LIB AUTHORS README.md
 %{_includedir}/KF5/karchive_version.h
 %{_includedir}/KF5/KArchive/
 %{_libdir}/libKF5Archive.so
 %{_libdir}/cmake/KF5Archive/
 %{_libdir}/pkgconfig/KF5Archive.pc
 %{_datadir}/qt5/mkspecs/modules/qt_KArchive.pri
+
+%files doc
+%defattr(-,root,root,-)
+%{_docdir}/%{name}-%{version}
