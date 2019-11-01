@@ -8,10 +8,10 @@ Subject: [PATCH 4/4] Fix null pointer reference when extraction fails
  1 file changed, 4 insertions(+)
 
 diff --git a/src/karchive.cpp b/src/karchive.cpp
-index 0ad4268..54edf15 100644
+index 0ad4268..53733e6 100644
 --- a/src/karchive.cpp
 +++ b/src/karchive.cpp
-@@ -740,6 +740,9 @@ bool KArchiveFile::copyTo(const QString &dest, bool autoRename, QString *outFile
+@@ -740,6 +740,10 @@ bool KArchiveFile::copyTo(const QString &dest, bool autoRename, QString *outFile
      QFile f(fileName);
      if (f.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
          QIODevice *inputDev = createDevice();
