@@ -39,7 +39,6 @@ Requires: %{name} = %{version}-%{release}
 
 %package doc
 Summary:   Documentation for %{name}
-Group:     Documentation
 Requires:  %{name} = %{version}-%{release}
 
 %description doc
@@ -54,13 +53,13 @@ Requires:  %{name} = %{version}-%{release}
 %patch4 -p1 -b .extract-fail
 
 %build
-cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=/usr/lib
+%cmake
 %{__make} %{?_smp_mflags}
 
 %install
 %{make_install}
 
-%define pkg_config_dir %{buildroot}/usr/lib/pkgconfig/
+%define pkg_config_dir %{buildroot}%{_libdir}/pkgconfig/
 
 mkdir -p %{pkg_config_dir}
 cp -p KF5Archive.pc %{pkg_config_dir}
