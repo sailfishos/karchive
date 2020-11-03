@@ -1,0 +1,117 @@
+From 2a1fd4eec423f610810149861e18544efee638e8 Mon Sep 17 00:00:00 2001
+From: Marko Lemmetty <marko.lemmetty@jollamobile.com>
+Date: Wed, 28 Oct 2020 16:42:20 +0200
+Subject: [PATCH] Revert "Make it compiles without foreach"
+
+This reverts commit ff2240350387b662c9f6142e37fdf15248f5e0e2.
+---
+ CMakeLists.txt                       | 2 +-
+ autotests/karchivetest.cpp           | 2 +-
+ autotests/kcompressiondevicetest.cpp | 2 +-
+ src/k7zip.cpp                        | 2 +-
+ src/krcc.cpp                         | 2 +-
+ tests/kziptest.cpp                   | 9 +++------
+ 6 files changed, 8 insertions(+), 11 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 541f9ea..10c8da0 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -61,7 +61,7 @@ ecm_setup_version(PROJECT
+     VERSION_HEADER "${CMAKE_CURRENT_BINARY_DIR}/karchive_version.h"
+     PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF5ArchiveConfigVersion.cmake"
+     SOVERSION 5)
+-add_definitions(-DQT_NO_FOREACH)
++
+ add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050d00)
+ 
+ add_subdirectory(src)
+diff --git a/autotests/karchivetest.cpp b/autotests/karchivetest.cpp
+index 325c7a8..e97efe5 100644
+--- a/autotests/karchivetest.cpp
++++ b/autotests/karchivetest.cpp
+@@ -136,7 +136,7 @@ static QStringList recursiveListEntries(const KArchiveDirectory *dir, const QStr
+     QStringList ret;
+     QStringList l = dir->entries();
+     l.sort();
+-    for (const QString &it : qAsConst(l)) {
++    Q_FOREACH (const QString &it, l) {
+         const KArchiveEntry *entry = dir->entry(it);
+ 
+         QString descr;
+diff --git a/autotests/kcompressiondevicetest.cpp b/autotests/kcompressiondevicetest.cpp
+index e317db2..b4e07e4 100644
+--- a/autotests/kcompressiondevicetest.cpp
++++ b/autotests/kcompressiondevicetest.cpp
+@@ -102,7 +102,7 @@ void KCompressionDeviceTest::testExtraction()
+             << QLatin1String("examples/unzipper/CMakeLists.txt")
+             << QLatin1String("examples/unzipper/main.cpp");
+ 
+-    for (const QString& s : qAsConst(fileList)) {
++    foreach (const QString& s, fileList) {
+         QFileInfo extractedFile(s);
+         QFileInfo sourceFile(QFINDTESTDATA("../" + s));
+ 
+diff --git a/src/k7zip.cpp b/src/k7zip.cpp
+index f2f9ab8..8a9a3c9 100644
+--- a/src/k7zip.cpp
++++ b/src/k7zip.cpp
+@@ -1673,7 +1673,7 @@ QByteArray K7Zip::K7ZipPrivate::readAndDecodePackedStreams(bool readMainStreamIn
+         }
+ 
+         QByteArray inflated;
+-        for (const QByteArray& data : qAsConst(inflatedDatas)) {
++        Q_FOREACH (const QByteArray& data, inflatedDatas) {
+             inflated.append(data);
+         }
+ 
+diff --git a/src/krcc.cpp b/src/krcc.cpp
+index d41b591..9288af2 100644
+--- a/src/krcc.cpp
++++ b/src/krcc.cpp
+@@ -130,7 +130,7 @@ bool KRcc::openArchive(QIODevice::OpenMode mode)
+ 
+ void KRcc::KRccPrivate::createEntries(const QDir &dir, KArchiveDirectory *parentDir, KRcc *q)
+ {
+-    for (const QString &fileName : dir.entryList()) {
++    Q_FOREACH (const QString &fileName, dir.entryList()) {
+         const QString entryPath = dir.path() + QLatin1Char('/') + fileName;
+         const QFileInfo info(entryPath);
+         if (info.isFile()) {
+diff --git a/tests/kziptest.cpp b/tests/kziptest.cpp
+index a8f9b62..9651703 100644
+--- a/tests/kziptest.cpp
++++ b/tests/kziptest.cpp
+@@ -13,8 +13,7 @@
+ 
+ void recursive_print(const KArchiveDirectory *dir, const QString &path)
+ {
+-    const QStringList lst = dir->entries();
+-    for (const QString &it : lst) {
++    foreach (const QString &it, dir->entries()) {
+         const KArchiveEntry *entry = dir->entry(it);
+         printf("mode=%07o %s %s \"%s%s\" size: %lld pos: %lld isdir=%d%s", entry->permissions(),
+                entry->user().toLatin1().constData(), entry->group().toLatin1().constData(),
+@@ -35,8 +34,7 @@ void recursive_print(const KArchiveDirectory *dir, const QString &path)
+ void recursive_transfer(const KArchiveDirectory *dir,
+                         const QString &path, KZip *zip)
+ {
+-    const QStringList lst = dir->entries();
+-    for (const QString &it : lst) {
++    foreach (const QString &it, dir->entries()) {
+         const KArchiveEntry *e = dir->entry(it);
+         qDebug() << "actual file: " << e->name();
+         if (e->isFile()) {
+@@ -84,8 +82,7 @@ static int doPrintAll(const QString &fileName)
+     }
+     const KArchiveDirectory *dir = zip.directory();
+     qDebug() << "Listing toplevel of zip file";
+-    const QStringList lst = dir->entries();
+-    for (const QString &it : lst) {
++    foreach (const QString &it, dir->entries()) {
+         const KArchiveEntry *e = dir->entry(it);
+         qDebug() << "Printing" << it;
+         if (e->isFile()) {
+-- 
+2.26.2
+

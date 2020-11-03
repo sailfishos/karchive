@@ -1,0 +1,82 @@
+From 932de4316653e144437269167ad0be8bfc3d7b87 Mon Sep 17 00:00:00 2001
+From: Marko Lemmetty <marko.lemmetty@jollamobile.com>
+Date: Thu, 29 Oct 2020 11:31:25 +0200
+Subject: [PATCH] Revert "Test reading and seeking in KCompressionDevice"
+
+This reverts commit d9878a684bad6bff4dc9b052663b7bc87a44d729.
+---
+ autotests/kcompressiondevicetest.cpp | 37 ----------------------------
+ autotests/kcompressiondevicetest.h   |  3 ---
+ src/kcompressiondevice.cpp           |  3 ++-
+ 3 files changed, 2 insertions(+), 41 deletions(-)
+
+diff --git a/autotests/kcompressiondevicetest.cpp b/autotests/kcompressiondevicetest.cpp
+index e317db2..a7a62cf 100644
+--- a/autotests/kcompressiondevicetest.cpp
++++ b/autotests/kcompressiondevicetest.cpp
+@@ -5,7 +5,6 @@
+ */
+ 
+ #include "kcompressiondevicetest.h"
+-#include "kcompressiondevice_p.h"
+ 
+ #include <config-compression.h>
+ 
+@@ -178,39 +177,3 @@ void KCompressionDeviceTest::testWriteErrorOnClose()
+     // THEN
+     QCOMPARE(int(dev.error()), int(QFileDevice::WriteError));
+ }
+-
+-void KCompressionDeviceTest::testSeekReadUncompressedBuffer_data()
+-{
+-    QTest::addColumn<int>("dataSize");
+-    QTest::addColumn<int>("realDataPos");
+-    QTest::newRow("1.5buffer") << BUFFER_SIZE + BUFFER_SIZE / 2 << BUFFER_SIZE;
+-    QTest::newRow("5seekbuffer") << 5 * SEEK_BUFFER_SIZE << 4 * SEEK_BUFFER_SIZE;
+-}
+-
+-void KCompressionDeviceTest::testSeekReadUncompressedBuffer()
+-{
+-    QFETCH(int, dataSize);
+-    QFETCH(int, realDataPos);
+-
+-    QByteArray ba(dataSize, 0);
+-
+-    // all data is zero except after realDataPos that it's 0 to 9
+-    for (int i = 0; i < 10; ++i) {
+-        ba[realDataPos + i] = i;
+-    }
+-
+-    QBuffer b;
+-    b.setData(ba);
+-    QVERIFY(b.open(QIODevice::ReadOnly));
+-
+-    KCompressionDevice kcd(&b, false, KCompressionDevice::GZip);
+-    QVERIFY(kcd.open(QIODevice::ReadOnly));
+-    QVERIFY(kcd.seek(realDataPos));
+-
+-    // the 10 bytes after realDataPos should be 0 to 9
+-    const QByteArray kcdData = kcd.read(10);
+-    QCOMPARE(kcdData.size(), 10);
+-    for (int i = 0; i < kcdData.size(); ++i) {
+-        QCOMPARE(kcdData[i], i);
+-    }
+-}
+diff --git a/autotests/kcompressiondevicetest.h b/autotests/kcompressiondevicetest.h
+index d1b36b4..4616e98 100644
+--- a/autotests/kcompressiondevicetest.h
++++ b/autotests/kcompressiondevicetest.h
+@@ -44,9 +44,6 @@ private Q_SLOTS:
+ 
+     void testWriteErrorOnOpen();
+     void testWriteErrorOnClose();
+-
+-    void testSeekReadUncompressedBuffer_data();
+-    void testSeekReadUncompressedBuffer();
+ };
+ 
+ #endif
+
+-- 
+2.26.2
+
