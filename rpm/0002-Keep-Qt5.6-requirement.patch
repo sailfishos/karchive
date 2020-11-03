@@ -18,7 +18,7 @@ index 2a3575d..86283f6 100644
  
  include(GenerateExportHeader)
  
--set(REQUIRED_QT_VERSION 5.7.0)
+-set(REQUIRED_QT_VERSION 5.12.0)
 +set(REQUIRED_QT_VERSION 5.6.0)
  find_package(Qt5Core ${REQUIRED_QT_VERSION} REQUIRED NO_MODULE)
  

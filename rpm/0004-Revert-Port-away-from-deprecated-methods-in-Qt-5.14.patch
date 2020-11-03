@@ -1,0 +1,135 @@
+From b9011c43077617bd0d5b7f7890782d8dcecc4e26 Mon Sep 17 00:00:00 2001
+From: Marko Lemmetty <marko.lemmetty@jollamobile.com>
+Date: Wed, 28 Oct 2020 14:46:27 +0200
+Subject: [PATCH] Revert "Port away from deprecated methods in Qt 5.14"
+
+This reverts commit a5013060b789ead2cb6f6718943e40c383502d56.
+---
+ autotests/karchivetest.cpp |  4 ++--
+ src/k7zip.cpp              |  4 ++--
+ src/karchive.cpp           |  8 ++++----
+ src/kzip.cpp               | 10 +++++-----
+ 4 files changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/autotests/karchivetest.cpp b/autotests/karchivetest.cpp
+index 325c7a8..7ed9bd8 100644
+--- a/autotests/karchivetest.cpp
++++ b/autotests/karchivetest.cpp
+@@ -306,7 +306,7 @@ static void testCopyTo(KArchive *archive)
+     const QFileInfo fileInfo5(fileName);
+     QVERIFY(fileInfo5.exists());
+     QVERIFY(fileInfo5.isFile());
+-    // Do not use fileInfo.symLinkTarget() for unix symlinks
++    // Do not use fileInfo.readLink() for unix symlinks
+     // It returns the -full- path to the target, while we want the target string "as is".
+     QString symLinkTarget;
+     const QByteArray encodedFileName = QFile::encodeName(fileName);
+@@ -487,7 +487,7 @@ void KArchiveTest::testReadTar() // testCreateTarGz must have been run first.
+     const QString owner = localFileData.owner();
+     const QString group = localFileData.group();
+     const QString emptyTime = QDateTime().toString(QStringLiteral("dd.MM.yyyy hh:mm:ss"));
+-    const QDateTime creationTime = QFileInfo(fileName).birthTime();
++    const QDateTime creationTime = QFileInfo(fileName).created();
+ 
+     // 1.6-1.7 ms per interaction, 2908428 instruction loads
+     // After the "no tempfile when writing fix" this went down
+diff --git a/src/k7zip.cpp b/src/k7zip.cpp
+index f2f9ab8..2078107 100644
+--- a/src/k7zip.cpp
++++ b/src/k7zip.cpp
+@@ -1102,7 +1102,7 @@ static uint toTimeT(const long long liTime)
+ 
+     QDateTime t(QDate(year, month, day), QTime(hour, minute, second));
+     t.setTimeSpec(Qt::UTC);
+-    return t.toSecsSinceEpoch();
++    return t.toTime_t();
+ }
+ 
+ long long rtlSecondsSince1970ToSpecTime(quint32 seconds)
+@@ -1711,7 +1711,7 @@ void K7Zip::K7ZipPrivate::createItemsFromEntities(const KArchiveDirectory *dir,
+ 
+         fileInfo->path = path + entry->name();
+         mTimesDefined.append(true);
+-        mTimes.append(rtlSecondsSince1970ToSpecTime(entry->date().toSecsSinceEpoch()));
++        mTimes.append(rtlSecondsSince1970ToSpecTime(entry->date().toTime_t()));
+ 
+         if (entry->isFile()) {
+             const K7ZipFileEntry *fileEntry = static_cast<const K7ZipFileEntry *>(entry);
+diff --git a/src/karchive.cpp b/src/karchive.cpp
+index 083a50d..475b04e 100644
+--- a/src/karchive.cpp
++++ b/src/karchive.cpp
+@@ -284,7 +284,7 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
+ 
+     if (fileInfo.isSymLink()) {
+         QString symLinkTarget;
+-        // Do NOT use fileInfo.symLinkTarget() for unix symlinks!
++        // Do NOT use fileInfo.readLink() for unix symlinks!
+         // It returns the -full- path to the target, while we want the target string "as is".
+ #if defined(Q_OS_UNIX) && !defined(Q_OS_OS2EMX)
+         const QByteArray encodedFileName = QFile::encodeName(fileName);
+@@ -309,7 +309,7 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
+         }
+         return writeSymLink(destName, symLinkTarget, fileInfo.owner(),
+                             fileInfo.group(), fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(),
+-                            fileInfo.birthTime());
++                            fileInfo.created());
+     }/*end if*/
+ 
+     qint64 size = fileInfo.size();
+@@ -326,7 +326,7 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
+     }
+ 
+     if (!prepareWriting(destName, fileInfo.owner(), fileInfo.group(), size,
+-                        fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(), fileInfo.birthTime())) {
++                        fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(), fileInfo.created())) {
+         //qCWarning(KArchiveLog) << " prepareWriting" << destName << "failed";
+         return false;
+     }
+@@ -633,7 +633,7 @@ QDateTime KArchivePrivate::time_tToDateTime(uint time_t)
+     if (time_t == uint(-1)) {
+         return QDateTime();
+     }
+-    return QDateTime::fromSecsSinceEpoch(time_t);
++    return QDateTime::fromTime_t(time_t);
+ }
+ 
+ ////////////////////////////////////////////////////////////////////////
+diff --git a/src/kzip.cpp b/src/kzip.cpp
+index 1506866..37f63d3 100644
+--- a/src/kzip.cpp
++++ b/src/kzip.cpp
+@@ -65,7 +65,7 @@ static uint transformFromMsDos(const char *buffer)
+     QDate qd(y, o, d);
+ 
+     QDateTime dt(qd, qt);
+-    return dt.toSecsSinceEpoch();
++    return dt.toTime_t();
+ }
+ 
+ // == parsing routines for zip headers
+@@ -956,7 +956,7 @@ bool KZip::closeArchive()
+             extfield[4] = 1 | 2 | 4;    // specify flags from local field
+             // (unless I misread the spec)
+             // provide only modification time
+-            unsigned long time = (unsigned long)it.value()->date().toSecsSinceEpoch();
++            unsigned long time = (unsigned long)it.value()->date().toTime_t();
+             extfield[5] = char(time);
+             extfield[6] = char(time >> 8);
+             extfield[7] = char(time >> 16);
+@@ -1066,9 +1066,9 @@ bool KZip::doPrepareWriting(const QString &name, const QString &user,
+         return false;
+     }
+ 
+-    uint atime = accessTime.toSecsSinceEpoch();
+-    uint mtime = modificationTime.toSecsSinceEpoch();
+-    uint ctime = creationTime.toSecsSinceEpoch();
++    uint atime = accessTime.toTime_t();
++    uint mtime = modificationTime.toTime_t();
++    uint ctime = creationTime.toTime_t();
+ 
+     // Find or create parent dir
+     KArchiveDirectory *parentDir = rootDir();
+-- 
+2.26.2
+

@@ -1,5 +1,5 @@
 Name:        libkf5archive
-Version:     5.41.0
+Version:     5.57.0
 Release:     1
 Summary:     KDE Frameworks 5 Tier 1 addon with archive functions
 License:     LGPLv2+ and BSD
@@ -10,7 +10,10 @@ Source0:     %{name}-%{version}.tar.gz
 Patch1: 0001-Generate-pkg-config.patch
 Patch2: 0002-Keep-Qt5.6-requirement.patch
 Patch3: 0003-Add-an-option-to-automatically-rename-target-file-pa.patch
-Patch4: 0004-Fix-null-pointer-reference-when-extraction-fails.patch
+Patch4: 0004-Revert-Port-away-from-deprecated-methods-in-Qt-5.14.patch
+Patch5: 0005-Revert-Port-to-QRandomGenerator-qrand-was-deprecated.patch
+Patch6: 0006-Revert-Make-it-compiles-without-foreach.patch
+Patch7: 0007-Revert-Test-reading-and-seeking-in-KCompressionDevic.patch
 
 BuildRequires: cmake
 BuildRequires: extra-cmake-modules
@@ -45,19 +48,14 @@ Requires:  %{name} = %{version}-%{release}
 %{summary}.
 
 %prep
-%setup -n %{name}-%{version}/karchive
-
-%patch1 -p1 -b .generate-pkgconfg
-%patch2 -p1 -b .keep-qt5.6-build-req
-%patch3 -p1 -b .auto-rename
-%patch4 -p1 -b .extract-fail
+%autosetup -p1 -n %{name}-%{version}/karchive
 
 %build
 %cmake
-%{__make} %{?_smp_mflags}
+%make_build
 
 %install
-%{make_install}
+%make_install
 
 %define pkg_config_dir %{buildroot}%{_libdir}/pkgconfig/
 
@@ -72,8 +70,8 @@ install -m0644 -t %{buildroot}%{_docdir}/%{name}-%{version} \
 %postun -p /sbin/ldconfig
 
 %files
-%license COPYING COPYING.LIB
-%{_sysconfdir}/xdg/karchive.*
+%license LICENSES/*.txt
+%{_datadir}/qlogging-categories5/*categories
 %{_libdir}/libKF5Archive.so.*
 
 %files devel
