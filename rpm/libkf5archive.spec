@@ -22,7 +22,7 @@ BuildRequires: pkgconfig(Qt5Test)
 BuildRequires: pkgconfig(Qt5Network)
 BuildRequires: bzip2-devel
 BuildRequires: xz-devel
-
+#FIXME?
 Requires: qt5-qtcore
 
 %description
@@ -77,10 +77,10 @@ install -m0644 -t %{buildroot}%{_docdir}/%{name}-%{version} \
 %files devel
 %{_includedir}/KF5/karchive_version.h
 %{_includedir}/KF5/KArchive/
-%{_libdir}/libKF5Archive.so
-%{_libdir}/cmake/KF5Archive/
-%{_libdir}/pkgconfig/KF5Archive.pc
-%{_datadir}/qt5/mkspecs/modules/qt_KArchive.pri
+%{_qt5_libdir}/libKF5Archive.so
+%{_qt5_libdir}/cmake/KF5Archive/
+%{_qt5_libdir}/pkgconfig/KF5Archive.pc
+%{_qt5_archdatadir}/mkspecs/modules/qt_KArchive.pri
 
 %files doc
 %defattr(-,root,root,-)
