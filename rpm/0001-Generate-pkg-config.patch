@@ -11,10 +11,10 @@ Signed-off-by: Raine Makelainen <raine.makelainen@jolla.com>
  create mode 100644 KF5Archive.pc.in
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 541f9ea8602acb50a8e7bdb1892eafbd85f061f6..728943ff138e659b4b23000cebc51958253a918a 100644
+index c78076c..a0f8981 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -106,4 +106,15 @@ install(EXPORT KF5ArchiveTargets
+@@ -119,6 +119,17 @@ install(EXPORT KF5ArchiveTargets
          FILE KF5ArchiveTargets.cmake
          NAMESPACE KF5::)
  
@@ -30,9 +30,11 @@ index 541f9ea8602acb50a8e7bdb1892eafbd85f061f6..728943ff138e659b4b23000cebc51958
 +CONFIGURE_FILE("KF5Archive.pc.in" "KF5Archive.pc" @ONLY)
 +
  feature_summary(WHAT ALL   FATAL_ON_MISSING_REQUIRED_PACKAGES)
+ 
+ kde_configure_git_pre_commit_hook(CHECKS CLANG_FORMAT)
 diff --git a/KF5Archive.pc.in b/KF5Archive.pc.in
 new file mode 100644
-index 0000000000000000000000000000000000000000..cc4948d8678aadf1838ce8aaac32a7d82a7d30f1
+index 0000000..cc4948d
 --- /dev/null
 +++ b/KF5Archive.pc.in
 @@ -0,0 +1,13 @@

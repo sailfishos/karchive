@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Pekka Vuorela <pekka.vuorela@jolla.com>
+Date: Tue, 7 Apr 2026 13:43:09 +0300
+Subject: [PATCH] Make unit test compile
+
+---
+ autotests/kcompressiondevicetest.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/autotests/kcompressiondevicetest.cpp b/autotests/kcompressiondevicetest.cpp
+index 53b04cb..2953d32 100644
+--- a/autotests/kcompressiondevicetest.cpp
++++ b/autotests/kcompressiondevicetest.cpp
+@@ -218,7 +218,7 @@ void KCompressionDeviceTest::testSeekReadUncompressedBuffer()
+     const QByteArray kcdData = kcd.read(10);
+     QCOMPARE(kcdData.size(), 10);
+     for (int i = 0; i < kcdData.size(); ++i) {
+-        QCOMPARE(kcdData[i], i);
++        QCOMPARE(kcdData[i], (char) i);
+     }
+ }
+ 

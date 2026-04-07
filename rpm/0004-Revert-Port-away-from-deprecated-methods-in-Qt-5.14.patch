@@ -7,15 +7,15 @@ This reverts commit a5013060b789ead2cb6f6718943e40c383502d56.
 ---
  autotests/karchivetest.cpp |  4 ++--
  src/k7zip.cpp              |  4 ++--
- src/karchive.cpp           |  8 ++++----
+ src/karchive.cpp           | 10 +++++-----
  src/kzip.cpp               | 10 +++++-----
- 4 files changed, 13 insertions(+), 13 deletions(-)
+ 4 files changed, 14 insertions(+), 14 deletions(-)
 
 diff --git a/autotests/karchivetest.cpp b/autotests/karchivetest.cpp
-index 325c7a856062493bceb27b68874ffca5247ae8ca..7ed9bd839c2c7f9503a753a26494e5dbfaef6ba2 100644
+index 4faf6f0..014f3d6 100644
 --- a/autotests/karchivetest.cpp
 +++ b/autotests/karchivetest.cpp
-@@ -306,7 +306,7 @@ static void testCopyTo(KArchive *archive)
+@@ -309,7 +309,7 @@ static void testCopyTo(KArchive *archive)
      const QFileInfo fileInfo5(fileName);
      QVERIFY(fileInfo5.exists());
      QVERIFY(fileInfo5.isFile());
@@ -24,7 +24,7 @@ index 325c7a856062493bceb27b68874ffca5247ae8ca..7ed9bd839c2c7f9503a753a26494e5db
      // It returns the -full- path to the target, while we want the target string "as is".
      QString symLinkTarget;
      const QByteArray encodedFileName = QFile::encodeName(fileName);
-@@ -487,7 +487,7 @@ void KArchiveTest::testReadTar() // testCreateTarGz must have been run first.
+@@ -496,7 +496,7 @@ void KArchiveTest::testReadTar() // testCreateTarGz must have been run first.
      const QString owner = localFileData.owner();
      const QString group = localFileData.group();
      const QString emptyTime = QDateTime().toString(QStringLiteral("dd.MM.yyyy hh:mm:ss"));
@@ -34,10 +34,10 @@ index 325c7a856062493bceb27b68874ffca5247ae8ca..7ed9bd839c2c7f9503a753a26494e5db
      // 1.6-1.7 ms per interaction, 2908428 instruction loads
      // After the "no tempfile when writing fix" this went down
 diff --git a/src/k7zip.cpp b/src/k7zip.cpp
-index f2f9ab8415d3b1f3c6d3efa6e05d3d8a3cb0c31f..207810782ca722a4764c178e1c6a3b785dc580e1 100644
+index fd2517c..95ce98e 100644
 --- a/src/k7zip.cpp
 +++ b/src/k7zip.cpp
-@@ -1102,7 +1102,7 @@ static uint toTimeT(const long long liTime)
+@@ -1131,7 +1131,7 @@ static uint toTimeT(const long long liTime)
  
      QDateTime t(QDate(year, month, day), QTime(hour, minute, second));
      t.setTimeSpec(Qt::UTC);
@@ -46,7 +46,7 @@ index f2f9ab8415d3b1f3c6d3efa6e05d3d8a3cb0c31f..207810782ca722a4764c178e1c6a3b78
  }
  
  long long rtlSecondsSince1970ToSpecTime(quint32 seconds)
-@@ -1711,7 +1711,7 @@ void K7Zip::K7ZipPrivate::createItemsFromEntities(const KArchiveDirectory *dir,
+@@ -1729,7 +1729,7 @@ void K7Zip::K7ZipPrivate::createItemsFromEntities(const KArchiveDirectory *dir,
  
          fileInfo->path = path + entry->name();
          mTimesDefined.append(true);
@@ -56,10 +56,10 @@ index f2f9ab8415d3b1f3c6d3efa6e05d3d8a3cb0c31f..207810782ca722a4764c178e1c6a3b78
          if (entry->isFile()) {
              const K7ZipFileEntry *fileEntry = static_cast<const K7ZipFileEntry *>(entry);
 diff --git a/src/karchive.cpp b/src/karchive.cpp
-index aaccf94367fbcf86dbfb9f38dc5933fe37c46d83..87d90062619a91f463076fe23a045d115bfd78e2 100644
+index ca632cf..8c8b716 100644
 --- a/src/karchive.cpp
 +++ b/src/karchive.cpp
-@@ -284,7 +284,7 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
+@@ -277,7 +277,7 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
  
      if (fileInfo.isSymLink()) {
          QString symLinkTarget;
@@ -68,25 +68,34 @@ index aaccf94367fbcf86dbfb9f38dc5933fe37c46d83..87d90062619a91f463076fe23a045d11
          // It returns the -full- path to the target, while we want the target string "as is".
  #if defined(Q_OS_UNIX) && !defined(Q_OS_OS2EMX)
          const QByteArray encodedFileName = QFile::encodeName(fileName);
-@@ -309,7 +309,7 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
-         }
-         return writeSymLink(destName, symLinkTarget, fileInfo.owner(),
-                             fileInfo.group(), fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(),
+@@ -307,7 +307,7 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
+                             fi.st_mode,
+                             fileInfo.lastRead(),
+                             fileInfo.lastModified(),
 -                            fileInfo.birthTime());
 +                            fileInfo.created());
-     }/*end if*/
+     } /*end if*/
  
      qint64 size = fileInfo.size();
-@@ -326,7 +326,7 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
-     }
- 
-     if (!prepareWriting(destName, fileInfo.owner(), fileInfo.group(), size,
--                        fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(), fileInfo.birthTime())) {
-+                        fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(), fileInfo.created())) {
-         //qCWarning(KArchiveLog) << " prepareWriting" << destName << "failed";
+@@ -321,7 +321,7 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
          return false;
      }
-@@ -633,7 +633,7 @@ QDateTime KArchivePrivate::time_tToDateTime(uint time_t)
+ 
+-    if (!prepareWriting(destName, fileInfo.owner(), fileInfo.group(), size, fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(), fileInfo.birthTime())) {
++    if (!prepareWriting(destName, fileInfo.owner(), fileInfo.group(), size, fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(), fileInfo.created())) {
+         // qCWarning(KArchiveLog) << " prepareWriting" << destName << "failed";
+         return false;
+     }
+@@ -372,7 +372,7 @@ bool KArchive::addLocalDirectory(const QString &path, const QString &destName)
+                 if (STAT_METHOD(QFile::encodeName(fileName).constData(), &fi) != -1) {
+                     perms = fi.st_mode;
+                 }
+-                writeDir(dest, fileInfo.owner(), fileInfo.group(), perms, fileInfo.lastRead(), fileInfo.lastModified(), fileInfo.birthTime());
++                writeDir(dest, fileInfo.owner(), fileInfo.group(), perms, fileInfo.lastRead(), fileInfo.lastModified(), fileInfo.created());
+                 // Recurse
+                 addLocalDirectory(fileName, dest);
+             }
+@@ -646,7 +646,7 @@ QDateTime KArchivePrivate::time_tToDateTime(uint time_t)
      if (time_t == uint(-1)) {
          return QDateTime();
      }
@@ -96,10 +105,10 @@ index aaccf94367fbcf86dbfb9f38dc5933fe37c46d83..87d90062619a91f463076fe23a045d11
  
  ////////////////////////////////////////////////////////////////////////
 diff --git a/src/kzip.cpp b/src/kzip.cpp
-index 15068663c9ceaefb0616af35e6b6d69661bc56a4..37f63d3e920f6bd4436de5337d76ae5cdc4130d7 100644
+index 771117f..5472e72 100644
 --- a/src/kzip.cpp
 +++ b/src/kzip.cpp
-@@ -65,7 +65,7 @@ static uint transformFromMsDos(const char *buffer)
+@@ -68,7 +68,7 @@ static uint transformFromMsDos(const char *buffer)
      QDate qd(y, o, d);
  
      QDateTime dt(qd, qt);
@@ -108,8 +117,8 @@ index 15068663c9ceaefb0616af35e6b6d69661bc56a4..37f63d3e920f6bd4436de5337d76ae5c
  }
  
  // == parsing routines for zip headers
-@@ -956,7 +956,7 @@ bool KZip::closeArchive()
-             extfield[4] = 1 | 2 | 4;    // specify flags from local field
+@@ -952,7 +952,7 @@ bool KZip::closeArchive()
+             extfield[4] = 1 | 2 | 4; // specify flags from local field
              // (unless I misread the spec)
              // provide only modification time
 -            unsigned long time = (unsigned long)it.value()->date().toSecsSinceEpoch();
@@ -117,7 +126,7 @@ index 15068663c9ceaefb0616af35e6b6d69661bc56a4..37f63d3e920f6bd4436de5337d76ae5c
              extfield[5] = char(time);
              extfield[6] = char(time >> 8);
              extfield[7] = char(time >> 16);
-@@ -1066,9 +1066,9 @@ bool KZip::doPrepareWriting(const QString &name, const QString &user,
+@@ -1068,9 +1068,9 @@ bool KZip::doPrepareWriting(const QString &name,
          return false;
      }
  
