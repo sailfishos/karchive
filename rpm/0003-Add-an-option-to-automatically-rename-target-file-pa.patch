@@ -1,8 +1,8 @@
-From fe38c3a1c97a5583a847ddb68ee791c0257a99c6 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Raine Makelainen <raine.makelainen@jolla.com>
 Date: Wed, 17 Jan 2018 08:57:23 +0200
-Subject: [PATCH 3/3] Add an option to automatically rename target file/path
- before extracting
+Subject: [PATCH] Add an option to automatically rename target file/path before
+ extracting
 
 This commit adds optional arguments to copyTo methods to allow automatically
 rename extracted file or directory before extracting. Use autoRename
@@ -12,16 +12,16 @@ name of the written file or directory.
 
 Signed-off-by: Raine Makelainen <raine.makelainen@jolla.com>
 ---
- src/karchive.cpp        | 63 ++++++++++++++++++++++++++++++++++++++++++-------
- src/karchivedirectory.h |  6 +++--
- src/karchivefile.h      |  6 +++--
+ src/karchive.cpp        | 63 +++++++++++++++++++++++++++++++++++------
+ src/karchivedirectory.h |  6 ++--
+ src/karchivefile.h      |  6 ++--
  3 files changed, 63 insertions(+), 12 deletions(-)
 
 diff --git a/src/karchive.cpp b/src/karchive.cpp
-index db42b58..0ad4268 100644
+index 083a50d8ac16a2ad19d6e2069ce05858270f1971..aaccf94367fbcf86dbfb9f38dc5933fe37c46d83 100644
 --- a/src/karchive.cpp
 +++ b/src/karchive.cpp
-@@ -720,9 +720,24 @@ static QFileDevice::Permissions withExecutablePerms(
+@@ -808,9 +808,24 @@ static QFileDevice::Permissions withExecutablePerms(
      return filePerms;
  }
  
@@ -47,8 +47,8 @@ index db42b58..0ad4268 100644
 +    QFile f(fileName);
      if (f.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
          QIODevice *inputDev = createDevice();
- 
-@@ -744,8 +759,18 @@ bool KArchiveFile::copyTo(const QString &dest) const
+         if (!inputDev) {
+@@ -836,8 +851,18 @@ bool KArchiveFile::copyTo(const QString &dest) const
          f.close();
  
          delete inputDev;
@@ -67,7 +67,7 @@ index db42b58..0ad4268 100644
      return false;
  }
  
-@@ -866,10 +891,22 @@ static bool sortByPosition(const KArchiveFile *file1, const KArchiveFile *file2)
+@@ -927,10 +952,22 @@ static bool sortByPosition(const KArchiveFile *file1, const KArchiveFile *file2)
      return file1->position() < file2->position();
  }
  
@@ -92,7 +92,7 @@ index db42b58..0ad4268 100644
  
      QList<const KArchiveFile *> fileList;
      QMap<qint64, QString> fileToDir;
-@@ -879,24 +916,30 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
+@@ -940,24 +977,30 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
      QStack<QString> dirNameStack;
  
      dirStack.push(this);       // init stack at current directory
@@ -127,7 +127,7 @@ index db42b58..0ad4268 100644
          const QStringList dirEntries = curDir->entries();
          for (QStringList::const_iterator it = dirEntries.begin(); it != dirEntries.end(); ++it) {
              const KArchiveEntry *curEntry = curDir->entry(*it);
-@@ -939,6 +982,10 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
+@@ -1000,6 +1043,10 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
          const KArchiveFile *f = *it;
          qint64 pos = f->position();
          if (!f->copyTo(fileToDir[pos])) {
@@ -139,10 +139,10 @@ index db42b58..0ad4268 100644
          }
      }
 diff --git a/src/karchivedirectory.h b/src/karchivedirectory.h
-index 13f0d62..5be03ba 100644
+index 9fe023ec953baef3fa77483fe64865772501fa26..09cdc0554856cc6ef3c9a45cc9d35780fa71b8d4 100644
 --- a/src/karchivedirectory.h
 +++ b/src/karchivedirectory.h
-@@ -113,9 +113,11 @@ public:
+@@ -108,9 +108,11 @@ public:
       * @p dest.
       * @param dest the directory to extract to
       * @param recursive if set to true, subdirectories are extracted as well
@@ -155,12 +155,12 @@ index 13f0d62..5be03ba 100644
 +    bool copyTo(const QString &dest, bool recursive = true, bool autoRename = false, QString *outDir = nullptr) const;
  
  protected:
-     void virtual_hook(int id, void *data) Q_DECL_OVERRIDE;
+     void virtual_hook(int id, void *data) override;
 diff --git a/src/karchivefile.h b/src/karchivefile.h
-index df61611..4683963 100644
+index c9638d3704f4956215549a8afb9a1a5ce1e8d2ac..ffdc93de14c45cc42d83c6d60b98c8d47bb71889 100644
 --- a/src/karchivefile.h
 +++ b/src/karchivefile.h
-@@ -101,9 +101,11 @@ public:
+@@ -89,9 +89,11 @@ public:
      /**
       * Extracts the file to the directory @p dest
       * @param dest the directory to extract to
@@ -173,7 +173,4 @@ index df61611..4683963 100644
 +    bool copyTo(const QString &dest, bool autoRename = false, QString *outFileName = nullptr) const;
  
  protected:
-     void virtual_hook(int id, void *data) Q_DECL_OVERRIDE;
--- 
-2.7.4
-
+     void virtual_hook(int id, void *data) override;

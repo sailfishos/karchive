@@ -1,4 +1,4 @@
-From 932de4316653e144437269167ad0be8bfc3d7b87 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Marko Lemmetty <marko.lemmetty@jollamobile.com>
 Date: Thu, 29 Oct 2020 11:31:25 +0200
 Subject: [PATCH] Revert "Test reading and seeking in KCompressionDevice"
@@ -7,11 +7,10 @@ This reverts commit d9878a684bad6bff4dc9b052663b7bc87a44d729.
 ---
  autotests/kcompressiondevicetest.cpp | 37 ----------------------------
  autotests/kcompressiondevicetest.h   |  3 ---
- src/kcompressiondevice.cpp           |  3 ++-
- 3 files changed, 2 insertions(+), 41 deletions(-)
+ 2 files changed, 40 deletions(-)
 
 diff --git a/autotests/kcompressiondevicetest.cpp b/autotests/kcompressiondevicetest.cpp
-index e317db2..a7a62cf 100644
+index b4e07e4f4c0de59c2fd388dc4393c3281d81b317..fa282dc5f9ec45f3650381e2974f70337d7a0d8a 100644
 --- a/autotests/kcompressiondevicetest.cpp
 +++ b/autotests/kcompressiondevicetest.cpp
 @@ -5,7 +5,6 @@
@@ -63,7 +62,7 @@ index e317db2..a7a62cf 100644
 -    }
 -}
 diff --git a/autotests/kcompressiondevicetest.h b/autotests/kcompressiondevicetest.h
-index d1b36b4..4616e98 100644
+index d1b36b40d6564758bd45a6ce7b4967ff17183ce0..4616e983e0d80aa3466c30b517458c8589393dab 100644
 --- a/autotests/kcompressiondevicetest.h
 +++ b/autotests/kcompressiondevicetest.h
 @@ -44,9 +44,6 @@ private Q_SLOTS:
@@ -76,7 +75,3 @@ index d1b36b4..4616e98 100644
  };
  
  #endif
-
--- 
-2.26.2
-

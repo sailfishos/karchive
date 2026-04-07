@@ -1,4 +1,4 @@
-From e74b9c58fc19276830585eca52af9c8d43459486 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Marko Lemmetty <marko.lemmetty@jollamobile.com>
 Date: Wed, 28 Oct 2020 15:10:09 +0200
 Subject: [PATCH] Revert "Port to QRandomGenerator (qrand was deprecated in
@@ -10,7 +10,7 @@ This reverts commit 82fdd07d387d6d278de917a51a82a9c8444e94d6.
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/autotests/kfiltertest.cpp b/autotests/kfiltertest.cpp
-index 20d1e50..5aab743 100644
+index 20d1e50c5e30542456ae38d11142805f79801db7..5aab743420439ac7fed686feb15f98754904e98a 100644
 --- a/autotests/kfiltertest.cpp
 +++ b/autotests/kfiltertest.cpp
 @@ -10,7 +10,6 @@
@@ -42,6 +42,3 @@ index 20d1e50..5aab743 100644
      }
  }
  
--- 
-2.26.2
-

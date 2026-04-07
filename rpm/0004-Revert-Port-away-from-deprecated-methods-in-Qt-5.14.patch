@@ -1,4 +1,4 @@
-From b9011c43077617bd0d5b7f7890782d8dcecc4e26 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Marko Lemmetty <marko.lemmetty@jollamobile.com>
 Date: Wed, 28 Oct 2020 14:46:27 +0200
 Subject: [PATCH] Revert "Port away from deprecated methods in Qt 5.14"
@@ -12,7 +12,7 @@ This reverts commit a5013060b789ead2cb6f6718943e40c383502d56.
  4 files changed, 13 insertions(+), 13 deletions(-)
 
 diff --git a/autotests/karchivetest.cpp b/autotests/karchivetest.cpp
-index 325c7a8..7ed9bd8 100644
+index 325c7a856062493bceb27b68874ffca5247ae8ca..7ed9bd839c2c7f9503a753a26494e5dbfaef6ba2 100644
 --- a/autotests/karchivetest.cpp
 +++ b/autotests/karchivetest.cpp
 @@ -306,7 +306,7 @@ static void testCopyTo(KArchive *archive)
@@ -34,7 +34,7 @@ index 325c7a8..7ed9bd8 100644
      // 1.6-1.7 ms per interaction, 2908428 instruction loads
      // After the "no tempfile when writing fix" this went down
 diff --git a/src/k7zip.cpp b/src/k7zip.cpp
-index f2f9ab8..2078107 100644
+index f2f9ab8415d3b1f3c6d3efa6e05d3d8a3cb0c31f..207810782ca722a4764c178e1c6a3b785dc580e1 100644
 --- a/src/k7zip.cpp
 +++ b/src/k7zip.cpp
 @@ -1102,7 +1102,7 @@ static uint toTimeT(const long long liTime)
@@ -56,7 +56,7 @@ index f2f9ab8..2078107 100644
          if (entry->isFile()) {
              const K7ZipFileEntry *fileEntry = static_cast<const K7ZipFileEntry *>(entry);
 diff --git a/src/karchive.cpp b/src/karchive.cpp
-index 083a50d..475b04e 100644
+index aaccf94367fbcf86dbfb9f38dc5933fe37c46d83..87d90062619a91f463076fe23a045d115bfd78e2 100644
 --- a/src/karchive.cpp
 +++ b/src/karchive.cpp
 @@ -284,7 +284,7 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
@@ -96,7 +96,7 @@ index 083a50d..475b04e 100644
  
  ////////////////////////////////////////////////////////////////////////
 diff --git a/src/kzip.cpp b/src/kzip.cpp
-index 1506866..37f63d3 100644
+index 15068663c9ceaefb0616af35e6b6d69661bc56a4..37f63d3e920f6bd4436de5337d76ae5cdc4130d7 100644
 --- a/src/kzip.cpp
 +++ b/src/kzip.cpp
 @@ -65,7 +65,7 @@ static uint transformFromMsDos(const char *buffer)
@@ -130,6 +130,3 @@ index 1506866..37f63d3 100644
  
      // Find or create parent dir
      KArchiveDirectory *parentDir = rootDir();
--- 
-2.26.2
-
