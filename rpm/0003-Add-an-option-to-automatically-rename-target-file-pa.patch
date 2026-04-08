@@ -1,8 +1,8 @@
-From fe38c3a1c97a5583a847ddb68ee791c0257a99c6 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Raine Makelainen <raine.makelainen@jolla.com>
 Date: Wed, 17 Jan 2018 08:57:23 +0200
-Subject: [PATCH 3/3] Add an option to automatically rename target file/path
- before extracting
+Subject: [PATCH] Add an option to automatically rename target file/path before
+ extracting
 
 This commit adds optional arguments to copyTo methods to allow automatically
 rename extracted file or directory before extracting. Use autoRename
@@ -12,24 +12,24 @@ name of the written file or directory.
 
 Signed-off-by: Raine Makelainen <raine.makelainen@jolla.com>
 ---
- src/karchive.cpp        | 63 ++++++++++++++++++++++++++++++++++++++++++-------
+ src/karchive.cpp        | 55 ++++++++++++++++++++++++++++++++++++++---
  src/karchivedirectory.h |  6 +++--
  src/karchivefile.h      |  6 +++--
- 3 files changed, 63 insertions(+), 12 deletions(-)
+ 3 files changed, 59 insertions(+), 8 deletions(-)
 
 diff --git a/src/karchive.cpp b/src/karchive.cpp
-index db42b58..0ad4268 100644
+index 3a55db3..ca632cf 100644
 --- a/src/karchive.cpp
 +++ b/src/karchive.cpp
-@@ -720,9 +720,24 @@ static QFileDevice::Permissions withExecutablePerms(
+@@ -835,9 +835,24 @@ static QFileDevice::Permissions withExecutablePerms(QFileDevice::Permissions fil
      return filePerms;
  }
  
 -bool KArchiveFile::copyTo(const QString &dest) const
 +bool KArchiveFile::copyTo(const QString &dest, bool autoRename, QString *outFileName) const
  {
--    QFile f(dest + QLatin1Char('/')  + name());
-+    QString fileName(dest + QDir::separator()  + name());
+-    QFile f(dest + QLatin1Char('/') + name());
++    QString fileName(dest + QLatin1Char('/') + name());
 +    QFileInfo fileInfo(fileName);
 +    QString path = fileInfo.absolutePath();
 +    QString completeSuffix = fileInfo.completeSuffix();
@@ -47,8 +47,8 @@ index db42b58..0ad4268 100644
 +    QFile f(fileName);
      if (f.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
          QIODevice *inputDev = createDevice();
- 
-@@ -744,8 +759,18 @@ bool KArchiveFile::copyTo(const QString &dest) const
+         if (!inputDev) {
+@@ -863,8 +878,18 @@ bool KArchiveFile::copyTo(const QString &dest) const
          f.close();
  
          delete inputDev;
@@ -67,7 +67,7 @@ index db42b58..0ad4268 100644
      return false;
  }
  
-@@ -866,10 +891,22 @@ static bool sortByPosition(const KArchiveFile *file1, const KArchiveFile *file2)
+@@ -954,10 +979,22 @@ static bool sortByPosition(const KArchiveFile *file1, const KArchiveFile *file2)
      return file1->position() < file2->position();
  }
  
@@ -76,15 +76,15 @@ index db42b58..0ad4268 100644
  {
      QDir root;
 -    const QString destDir(QDir(dest).absolutePath()); // get directory path without any "." or ".."
-+    QDir destDir(dest);
-+    QString destDirStr(destDir.absolutePath()); // get directory path without any "." or ".."
-+    QString requestedDestDirStr = destDirStr;
++    QDir destCandidate(dest);
++    QString destDir(destCandidate.absolutePath()); // get directory path without any "." or ".."
++    QString requestedDestDirStr = destDir;
 +
 +    int index = 1;
-+    while (destDir.exists() && autoRename) {
-+        destDirStr = requestedDestDirStr + QLatin1String("_") + QString().setNum(index);
-+        destDir.setPath(destDirStr);
-+        destDirStr = destDir.absolutePath();
++    while (destCandidate.exists() && autoRename) {
++        destCandidate = requestedDestDirStr + QLatin1String("_") + QString().setNum(index);
++        destCandidate.setPath(destDir);
++        destDir = destCandidate.absolutePath();
 +        ++index;
 +    }
 +
@@ -92,42 +92,20 @@ index db42b58..0ad4268 100644
  
      QList<const KArchiveFile *> fileList;
      QMap<qint64, QString> fileToDir;
-@@ -879,24 +916,30 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
-     QStack<QString> dirNameStack;
- 
-     dirStack.push(this);       // init stack at current directory
--    dirNameStack.push(destDir);   // ... with given path
-+    dirNameStack.push(destDirStr);   // ... with given path
-     do {
-         const KArchiveDirectory *curDir = dirStack.pop();
- 
-         // extract only to specified folder if it is located within archive's extraction folder
-         // otherwise put file under root position in extraction folder
-         QString curDirName = dirNameStack.pop();
--        if (!QDir(curDirName).absolutePath().startsWith(destDir)) {
-+        if (!QDir(curDirName).absolutePath().startsWith(destDirStr)) {
-             qCWarning(KArchiveLog) << "Attempted export into folder" << curDirName
--                << "which is outside of the extraction root folder" << destDir << "."
-+                << "which is outside of the extraction root folder" << destDirStr << "."
-                 << "Changing export of contained files to extraction root folder.";
--            curDirName = destDir;
-+            curDirName = destDirStr;
-         }
- 
-         if (!root.mkpath(curDirName)) {
+@@ -984,6 +1021,12 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
              return false;
          }
  
 +        if (outDir && !outDirSet) {
 +            outDir->clear();
-+            outDir->append(destDirStr);
++            outDir->append(destDir);
 +            outDirSet = true;
 +        }
 +
          const QStringList dirEntries = curDir->entries();
          for (QStringList::const_iterator it = dirEntries.begin(); it != dirEntries.end(); ++it) {
              const KArchiveEntry *curEntry = curDir->entry(*it);
-@@ -939,6 +982,10 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
+@@ -1025,6 +1068,10 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
          const KArchiveFile *f = *it;
          qint64 pos = f->position();
          if (!f->copyTo(fileToDir[pos])) {
@@ -139,10 +117,10 @@ index db42b58..0ad4268 100644
          }
      }
 diff --git a/src/karchivedirectory.h b/src/karchivedirectory.h
-index 13f0d62..5be03ba 100644
+index a661efe..35b4875 100644
 --- a/src/karchivedirectory.h
 +++ b/src/karchivedirectory.h
-@@ -113,9 +113,11 @@ public:
+@@ -112,9 +112,11 @@ public:
       * @p dest.
       * @param dest the directory to extract to
       * @param recursive if set to true, subdirectories are extracted as well
@@ -155,12 +133,12 @@ index 13f0d62..5be03ba 100644
 +    bool copyTo(const QString &dest, bool recursive = true, bool autoRename = false, QString *outDir = nullptr) const;
  
  protected:
-     void virtual_hook(int id, void *data) Q_DECL_OVERRIDE;
+     void virtual_hook(int id, void *data) override;
 diff --git a/src/karchivefile.h b/src/karchivefile.h
-index df61611..4683963 100644
+index 95e1c52..bac1e12 100644
 --- a/src/karchivefile.h
 +++ b/src/karchivefile.h
-@@ -101,9 +101,11 @@ public:
+@@ -95,9 +95,11 @@ public:
      /**
       * Extracts the file to the directory @p dest
       * @param dest the directory to extract to
@@ -173,7 +151,4 @@ index df61611..4683963 100644
 +    bool copyTo(const QString &dest, bool autoRename = false, QString *outFileName = nullptr) const;
  
  protected:
-     void virtual_hook(int id, void *data) Q_DECL_OVERRIDE;
--- 
-2.7.4
-
+     void virtual_hook(int id, void *data) override;

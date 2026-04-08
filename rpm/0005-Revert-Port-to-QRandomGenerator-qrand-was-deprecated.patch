@@ -1,4 +1,4 @@
-From e74b9c58fc19276830585eca52af9c8d43459486 Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Marko Lemmetty <marko.lemmetty@jollamobile.com>
 Date: Wed, 28 Oct 2020 15:10:09 +0200
 Subject: [PATCH] Revert "Port to QRandomGenerator (qrand was deprecated in
@@ -10,18 +10,18 @@ This reverts commit 82fdd07d387d6d278de917a51a82a9c8444e94d6.
  1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/autotests/kfiltertest.cpp b/autotests/kfiltertest.cpp
-index 20d1e50..5aab743 100644
+index 4936849..9846bf1 100644
 --- a/autotests/kfiltertest.cpp
 +++ b/autotests/kfiltertest.cpp
-@@ -10,7 +10,6 @@
- #include <QBuffer>
+@@ -11,7 +11,6 @@
+ #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
  #include <QTextCodec>
- #include <QSaveFile>
+ #endif
 -#include <QRandomGenerator>
+ #include <QSaveFile>
  
- #include <config-compression.h>
- #include "kfilterdev.h"
-@@ -86,10 +85,9 @@ void KFilterTest::test_biggerWrites()
+ #include "kcompressiondevice.h"
+@@ -128,10 +127,9 @@ void KFilterTest::test_biggerWrites()
      // Find the out-of-bounds from #157706/#188415
      QByteArray data;
      data.reserve(10000);
@@ -33,15 +33,12 @@ index 20d1e50..5aab743 100644
      }
      QCOMPARE(data.size(), 8170);
      // 8170 random bytes compress to 8194 bytes due to the gzip header/footer.
-@@ -103,7 +101,7 @@ void KFilterTest::test_biggerWrites()
+@@ -145,7 +143,7 @@ void KFilterTest::test_biggerWrites()
          // Test data is valid
-         test_readall(outFile, QString::fromLatin1("application/x-gzip"), data);
+         test_readall(outFile, QString::fromLatin1("application/gzip"), data);
  
 -        data.append((char)(generator->bounded(256)));
 +        data.append((char)(qrand() % 256));
      }
  }
  
--- 
-2.26.2
-

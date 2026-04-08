@@ -1,5 +1,5 @@
 Name:        libkf5archive
-Version:     5.57.0
+Version:     5.110.0
 Release:     1
 Summary:     KDE Frameworks 5 Tier 1 addon with archive functions
 License:     LGPLv2+ and BSD
@@ -13,7 +13,7 @@ Patch3: 0003-Add-an-option-to-automatically-rename-target-file-pa.patch
 Patch4: 0004-Revert-Port-away-from-deprecated-methods-in-Qt-5.14.patch
 Patch5: 0005-Revert-Port-to-QRandomGenerator-qrand-was-deprecated.patch
 Patch6: 0006-Revert-Make-it-compiles-without-foreach.patch
-Patch7: 0007-Revert-Test-reading-and-seeking-in-KCompressionDevic.patch
+Patch7: 0007-Make-unit-test-compile.patch
 
 BuildRequires: cmake
 BuildRequires: extra-cmake-modules
@@ -22,6 +22,7 @@ BuildRequires: pkgconfig(Qt5Test)
 BuildRequires: pkgconfig(Qt5Network)
 BuildRequires: bzip2-devel
 BuildRequires: xz-devel
+BuildRequires: qt5-qttools-linguist
 
 Requires: qt5-qtcore
 
@@ -73,9 +74,9 @@ install -m0644 -t %{buildroot}%{_docdir}/%{name}-%{version} \
 %license LICENSES/*.txt
 %{_datadir}/qlogging-categories5/*categories
 %{_libdir}/libKF5Archive.so.*
+%{_datadir}/locale/*/LC_MESSAGES/karchive5_qt.qm
 
 %files devel
-%{_includedir}/KF5/karchive_version.h
 %{_includedir}/KF5/KArchive/
 %{_libdir}/libKF5Archive.so
 %{_libdir}/cmake/KF5Archive/
@@ -83,5 +84,4 @@ install -m0644 -t %{buildroot}%{_docdir}/%{name}-%{version} \
 %{_datadir}/qt5/mkspecs/modules/qt_KArchive.pri
 
 %files doc
-%defattr(-,root,root,-)
 %{_docdir}/%{name}-%{version}
